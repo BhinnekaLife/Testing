@@ -1,9 +1,9 @@
 language: node_js
 node_js:
   - "node"
-deploy:
-    github_token: $gh_token 
+deploy: 
   - skip_cleanup: true
+    github_token: $gh_token
     provider: script
     script: npm run build && npm run gh-pages
     on:
