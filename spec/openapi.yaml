@@ -279,7 +279,7 @@ paths:
       - "Auth"
       summary: "get current user"
       description: ""
-      operationId: ""
+      operationId: "AuthUser"
       parameters: 
         - in: header
           name: "req"
