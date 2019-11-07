@@ -7,7 +7,7 @@ info:
   # It can be any string but it is better to use semantic versioning: http://semver.org/
   # Warning: OpenAPI require version to be string, but without quotation YAML can recognize it as number.
   
-  title: Example.com # Replace with your API title
+  title: Account-Service Spec  # Replace with your API title
   # Keep it simple. Don't add "API" or version at the end of the string.
 
   termsOfService: 'https://example.com/terms/' # [Optional] Replace with an URL to your ToS
@@ -24,29 +24,98 @@ info:
   description: |
     This is an **example** API to demonstrate features of OpenAPI specification
     # Introduction
-    This specification is intended to to be a good starting point for describing your API in 
+    This specification is intended to to be a good starting point for describing your API in
     [OpenAPI/Swagger format](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md).
     It also demonstrates features of [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo) tool and 
     [ReDoc](https://github.com/Rebilly/ReDoc) documentation engine. So beyond the standard OpenAPI syntax we use a few 
     [vendor extensions](https://github.com/Rebilly/ReDoc/blob/master/docs/redoc-vendor-extensions.md).
-
+    
     # OpenAPI Specification
     The goal of The OpenAPI Specification is to define a standard, language-agnostic interface to REST APIs which
     allows both humans and computers to discover and understand the capabilities of the service without access to source
     code, documentation, or through network traffic inspection. When properly defined via OpenAPI, a consumer can 
     understand and interact with the remote service with a minimal amount of implementation logic. Similar to what
     interfaces have done for lower-level programming, OpenAPI removes the guesswork in calling the service.
-externalDocs:
-  description: Find out how to create Github repo for your OpenAPI spec.
-  url: 'https://github.com/Rebilly/generator-openapi-repo'
+    
+  
+    
+    # Pagination(limit and skip)
+    
+    ```
+    PATH:  basepath/user/find
+    {
+      "filter": {},
+      "options": {
+        "limit": 10,
+        "sort": {},
+        "skip": 0
+      }
+    }
+    ```
+    
+    return total = total rows
+    
+    # Sorting by login ASC
+    ```
+    {
+      "filter": {},
+      "options": {
+        "limit": 10,
+        "sort": {"login":1},
+        "skip": 0
+      }
+    }      
+    
+    ```
+    
+    # Sorting by login DESC
+    ```
+    {
+      "filter": {},
+      "options": {
+        "limit": 10,
+        "sort": {"login":-1},
+        "skip": 0
+      }
+    }      
+    
+    ```
+    
+    # Full text search
+    ```
+    {
+      "filter": {},
+      "options": {
+        "limit": 10,
+        "sort": {"login":1},
+        "skip": 0
+      }
+    }      
+    
+    ```
+    
+    other queries use standard mongodb query
+    
+    UNLICENSED
+    
+    
 
-# A list of tags used by the specification with additional metadata.
-# The order of the tags can be used to reflect on their order by the parsing tools.
+
+
 tags:
-  - name: Echo
-    description: Example echo operations
+  - name: Auth
+    description: Auth operations
+  - name: Message
+    description: Operations about message
+  - name: Role
+    description: Operations about user roles
+  - name: Todo
+    description: Operations TaskList
   - name: User
-    description: Operations about user
+    description: User Operations
+  # - name: echo
+  #   description: echo
+  
 servers:
   - url: 'http://example.com/api/v1'
   - url: 'https://example.com/api/v1'
@@ -54,98 +123,1109 @@ servers:
 # Holds the relative paths to the individual endpoints. The path is appended to the
 # basePath in order to construct the full URL. 
 paths:
-  '/users/{username}': # path parameter in curly braces
-
-    # parameters list that are used with each operation for this path
-    parameters:
-      - name: pretty_print
-        in: query
-        description: Pretty print response
+  /auth/keychange:
+    post:
+      tags:
+      - "Auth"
+      summary: "Authentication"
+      description: "Account service Auth"
+      operationId: "addAuth"
+      # consumes:
+      # - "application/xml"
+      # - "application/json"
+      # produces:
+      # - "application/json"
+      parameters: 
+      - in: header
+        name: "req"
+        description: "Example Value Model"
+        required: true
         schema:
-          type: boolean
-    get: # documentation for GET operation for this path
-      tags:
-        - User
-      
-      # summary is up to 120 symbold but we recommend to be shortest as possible
-      summary: Get user by user name
-      
-      # you can use GFM in operation description too: https://guides.github.com/features/mastering-markdown
-      description: |
-        Some description of the operation. 
-        You can use `markdown` here.
-      
-      # operationId should be unique across the whole specification
-      operationId: getUserByName
-      
-      # list of parameters for the operation
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be fetched
-          required: true
-          schema:
-            type: string
-        - name: with_email
-          in: query
-          description: Filter users without email
-          schema:
-            type: boolean
-      
-      # security schemas applied to this operation
-      security:
-        - main_auth:
-            - 'read:users' # for auth2 provide list of scopes here
-        - api_key: []
-      responses: # list of responses
-        '200':
-          description: Success
-          content:
-            application/json: # operation response mime type
-              schema: # response schema can be specified for each response
-                $ref: '#/components/schemas/User'
-              example: # response example
-                username: user1
-                email: user@example.com
-        '403':
-          description: Forbidden
-        '404':
-          description: User not found
-    # documentation for PUT operation for this path
-    put:
-      tags:
-        - User
-      summary: Updated user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be updated
-          required: true
-          schema:
-            type: string
-      security:
-        - main_auth:
-            - 'write:users'
+          $ref: '#/components/schemas/User'
       responses:
-        '200':
-          description: OK
-        '400':
-          description: Invalid user supplied
-        '404':
-          description: User not found
-      # request body documentation
+        200:
+          description: "Ok"
+        401: 
+          description: "AuthError"
+        500:
+          description: "SystemError"
+  /auth/salt:
+    post:
+      tags: 
+      - "Auth"
+      summary: "get salt"
+      description: ""
+      operationId: "auth salt"
+      parameters:
+      - in: header
+        name: "req"
+        description: "Example Value Model"
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: "InvalidRequest"
+        401:
+          description: "AuthError"
+        403:
+          description: "ForbidenError"
+        500:
+          description: "Internal Server Error"
+        4XX: 
+          description: "UserBlockError"
+  /auth:
+    post:
+      tags: 
+      - "Auth"
+      summary: "login"
+      description: ""
+      operationId: "userLogin"
+      parameters:
+      - in: header
+        name: "req"
+        description: "Example Value Model"
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "OK"
+        400:
+          description: "InvalidRequest"
+        401:
+          description: "AuthError"
+        403:
+          description: "ForbidenError"
+        500:
+          description: "Internal Server Error"
+        4XX: 
+          description: "UserBlockError"
+    delete:
+      tags: 
+        - "Auth"
+      summary: "logout"
+      description: ""
+      operationId: "userLogout"
+      parameters: 
+      - in: header
+        name: "req"
+        description: "Example Value Model"
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"
+        400:
+          description: "invalidRequest"
+        401:
+          description: "AuthError"
+        500:
+          description: "Internal Server error"
+  /auth/refresh:
+    post:
+      tags: 
+      - "Auth"
+      summary: "refresh"
+      description: ""
+      operationId: "refreshAuth"
+      parameters: 
+      - in: header
+        name: "req"
+        description: "Example Value Model"
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"
+        400:
+          description: "invalidRequest"
+        401:
+          description: "AuthError"
+        403:
+          description: "ForbiddenError"
+        500:
+          description: "Internal Server Error"
+        4XX:
+          description: "UserBlockError"
+  /auth/verify:
+    get:
+      tags: 
+      - "Auth"
+      summary: "Verify User Authentification"
+      description: ""
+      operationId: ""
+      parameters: 
+        - in: header
+          name: "req"
+          description: "Example Value Model"
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"
+  /auth/user:
+    get:
+      tags: 
+      - "Auth"
+      summary: "get current user"
+      description: ""
+      operationId: ""
+      parameters: 
+        - in: header
+          name: "req"
+          description: "Example Value Model"
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"
+        400:
+          description: "InvalidRequest"
+        401:
+          description: "AuthError"
+        403:
+          description: "ForbidenError"
+        500:
+          description: "Internal Server Error"
+  /auth/2fa:
+    get:
+      tags: 
+      - "Auth"
+      summary: "request2FA"
+      description: ""
+      operationId: ""
+      parameters: 
+        - in: header
+          name: "req"
+          description: "Example Value Model"
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"
+        400:
+          description: "InvalidRequest"
+        401:
+          description: "AuthError"
+        403:
+          description: "ForbiddenError"
+        500:
+          description: "InternalServerError"
+  /auth/2fa/{token}:
+    get:
+      tags: 
+      - "Auth"
+      summary: "request2FA"
+      description: ""
+      operationId: ""
+      parameters:
+        - in: header
+          name: "req"
+          description: "Example Value Model"
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
+        - in: path
+          name: token
+          required: true
+          content:
+            text/plain:
+              example:
+                "1NHsUvcw1bRcDo"
+            
+      responses:
+        200:
+          description: "ok"
+        400:
+          description: "InvalidRequest"
+        401:
+          description: "AuthError"
+        403:
+          description: "ForbiddenError"
+        500:
+          description: "SystemError"
+  /auth/validate2fa:
+    post:
+      tags: 
+      - "Auth"
+      summary: "validateToken2FA"
+      description: ""
+      operationId: ""
+      parameters: 
+        - in: header
+          name: "req"
+          description: "Example Value Model"
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"
+        400:
+          description: "InvalidRequest"
+        401:
+          description: "AuthError"
+        403:
+          description: "ForbiddenError"
+        500:
+          description: "InternalServerError"
+  /message/ID{id}:
+    get:
+      tags: 
+      - "Message"
+      summary: Get Message by ID
+      description: ""
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          content:
+            text/plain:
+              example: "37dgh4397sq"
+      responses:
+        200:
+          description: "Ok"
+    delete:
+      tags: 
+      - "Message"
+      summary: Delete message by ID
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          content:
+            text/plain:
+              example: "37dgh4397sq"
+      responses:
+        200:
+          description: "ok"
+  /message:
+    post:
+      tags: 
+      - "Message"
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/User'
-          application/xml:
+      responses:
+        200:
+          description: "ok"
+  /message/ID{id}/archive:
+    post:
+      tags: 
+      - "Message"
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: "ok"
+  /message/ID{id}/unarchive:
+    post:
+      tags: 
+      - "Message"
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: "Unarchived"
+  /message/findOne:
+    post:
+      tags: 
+      - "Message"
+      requestBody:
+        content:
+          application/json:
             schema:
               $ref: '#/components/schemas/User'
-        description: Updated user object
+      responses:
+        200:
+          description: "ok"
+  /message/find:
+    post:
+      tags: 
+      - "Message"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"
+  /message/clean:
+    post:
+      tags: 
+      - "Message"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"        
+  /role/privileges:
+    get:
+      tags: 
+      - "Role"
+      responses:
+        200:
+          description: "ok"
+  /role/ID{id}:
+    get:
+      tags: 
+      - "Role"
+      summary: "Get Role by ID"
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "ok"
+    post:
+      tags: 
+      - "Role"
+      summary: "Create Roles"
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"
+    delete:
+      tags: 
+      - "Role"
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "ok"
+  /role:
+    post:
+      tags: 
+      - "Role"
+      parameters:
+      - in: query
+        name: role
         required: true
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+      responses:
+        200:
+          description: "ok"
+  /role/findOne:
+    post:
+      tags: 
+      - "Role"
+      parameters: 
+      - in: query
+        name: "query"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"
+  /role/find:
+    post:
+      tags: 
+      - "Role"
+      parameters: 
+      - in: query
+        name: "query"
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: 'ok'
+  /todo/ID{id}:
+    get:
+      tags: 
+      - "Todo"
+      summary: "Get Todo by ID"
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: 'bfdh24219'
+      responses:
+        200:
+          description: "ok"
+    post:
+      tags: 
+      - "Todo"
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: 'bfdh24219'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+            example: 
+                {
+                  "$set": {},
+                  "$inc": {},
+                  "$push": {},
+                  "$pull": {},
+                  "$unset": {}
+                }
+      responses:
+        200:
+          description: "ok"
+    delete:
+      tags: 
+      - "Todo"
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: 'bfdh24219'
+      responses:
+        200:
+          description: "ok"
+          content:
+            application/json:
+              example: '{
+                
+                  "deletedCount": 0
+                
+              }'
+  /todo:
+    post:
+      tags: 
+      - "Todo"
+      parameters: 
+      - in: query
+        name: req
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"
+  /todo/clean:
+    post:
+      tags: 
+      - "Todo"
+      parameters: 
+      - in: query
+        name: req
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: 'ok'
+  /todo/clean/REF{ref}:
+    post:
+      tags: 
+      - "Todo"
+      parameters: 
+      - in: path
+        name: ref
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+      requestBody:
+        content:
+          application/json:
+            example: '{ test model }'
+      responses:
+        200:
+          description: 'ok'
+          content:
+            application/json:
+              example: '{}'
+  /todo/del:
+   post:
+    tags:
+    - "Todo"
+    parameters: 
+      - in: query
+        name: req
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+    responses:
+      200:
+        description: "ok"
+  /todo/claim/ID{id}:
+    get:
+      tags:
+      - "Todo"
+      parameters:
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: 'bfdh24219'
+      responses:
+        200:
+          description: 'ok'
+  /todo/assign/ID{id}:
+    post:
+      tags:
+      - "Todo"
+      parameters:
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: 'bfdh24219'
+      - in: query
+        name: assign
+        schema:
+          $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: 'ok'
+  /todo/findone:
+    post:
+      tags: 
+      - Todo
+      parameters: 
+      - in: query
+        name: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"
+  /todo/find:
+    post:
+      tags: 
+      - Todo
+      parameters: 
+      - in: query
+        name: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: "ok"
+  /todo/REF{id}:
+    delete:
+      tags: 
+      - Todo
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          application/json:
+            example: "321dsa831fh"
+      responses:
+        200:
+          description: "ok"
+  /todo/syncTodo:
+    get:
+      tags: 
+      - Todo
+      responses:
+        200:
+          description: "ok"
+          
+  /user/keychange:
+    post:
+      tags: 
+      - User
+      responses:
+        200:
+          description: "ok"
+  /user/agent:
+    post:
+        tags: 
+        - User
+        responses:
+          200:
+            description: "ok"
+  /user/externalAdmin:
+    post:
+      tags: 
+      - User
+      responses:
+        200:
+          description: "ok"
+  /user/activate:
+    post:
+      tags: 
+      - User
+      responses:
+        200:
+          description: "ok"
+  /user/activateConfirmation:
+    post:
+      tags: 
+      - User
+      responses:
+        200:
+          description: "ok"
+  /user/ID{id}/unblock:
+    post:
+      tags: 
+      - User
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          application/json:
+            example: "hdai38qwu"
+      responses:
+        200:
+          description: "ok"
+  /user/ID{id}/deactivate:
+    post:
+      tags: 
+      - User
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          application/json:
+            example: "hdai38qwu"
+      responses:
+        200:
+          description: "ok"
+  /user/salt:
+    get:
+      tags: 
+      - User
+      summary: getSalt
+      responses:
+        200:
+          description: "ok"
+  /user/changePassword:
+    post:
+      tags: 
+      - User
+      summary: Change Password
+      responses:
+        200:
+          description: "ok"
+  /user/resetPassword:
+    post:
+      tags: 
+      - User
+      summary: Reset Password
+      responses:
+        200:
+          description: "ok"
+  /user/resetPasswordConfirm:
+    post:
+      tags: 
+      - User
+      summary: Reset Password Confirm
+      responses:
+        200:
+          description: "ok"
+  /user/ID{id}:
+    get:
+      tags: 
+      - User
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          application/json:
+            example: 'ndd83924d'
+      responses:
+        200:
+          description: "ok"
+    post:
+      tags: 
+      - User
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          application/json:
+            example: 'ndd83924d'
+      responses:
+        200:
+          description: "ok"
+    delete:
+      tags:
+      - User
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          application/json:
+            example: 'ndd83924d'
+      responses:
+        200:
+          description: "ok"
+  /user/ID{id}/basic:
+    get:
+      tags: 
+      - User
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: 'dsahe287'
+      responses:
+        200:
+          description: "ok"
+  /user/L{login}:
+    get:
+      tags:
+      - User
+      summary: Get User by login
+      parameters:
+      - in: path
+        name: login
+        required: true
+        content:
+          text/plain:
+            example: "string"
+      responses:
+        200:
+          description: "ok"
+  /user/oneSignal:
+    post:
+      tags: 
+      - User
+      summary: Get User By ID
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: 'id'
+      responses:
+        200:
+          description: 'ok'
+  /user/findOne:
+    post:
+      tags: 
+      - User
+      summary: Get User By ID
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: 'id'
+      responses:
+        200:
+          description: 'ok'
+  /user/find:
+    post:
+      tags: 
+      - User
+      summary: Get User By ID
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: 'id'
+      responses:
+        200:
+          description: 'ok'
+  /user/sign:
+    post:
+      tags: 
+      - User
+      summary: Get User By ID
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: 'id'
+      responses:
+        200:
+          description: 'ok'      
+  /user/verify/{signature}:
+    get:
+      tags: 
+      - User
+      summary: Get User By ID
+      parameters: 
+      - in: path
+        name: signature
+        required: true
+        content:
+          text/plain:
+            example: 'id'
+      responses:
+        200:
+          description: 'ok'     
+    post:
+      tags:
+      - User
+      summary: verify user signature
+      parameters: 
+      - in: path
+        name: signature
+        required: true
+        content:
+          text/plain:
+            example: 'id'
+      responses:
+        200:
+          description: 'ok'
+  /user/sendMail:
+    post:
+      tags: 
+      - User
+      summary: User sendmail
+      parameters: 
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: 'id'
+      responses:
+        200:
+          description: 'ok'              
+  /user/register/ID{id}/{type}/pic:
+    post:
+      tags:
+      - User
+      summary: upload picture
+      parameters:
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: id
+      - in: path
+        name: type
+        required: true
+        content:
+          text/plain:
+            example: id
+      responses:
+        200:
+          description: "ok"
+    get:
+      tags:
+      - User
+      summary: get uploaded picture
+      parameters:
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: id
+      - in: path
+        name: type
+        required: true
+        content:
+          text/plain:
+            example: id
+      responses:
+        200:
+          description: "ok"
+  /user/ID{id}/{type}/pic:
+    post:
+      tags:
+      - User
+      summary: upload picture
+      parameters:
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: "id"
+      - in: path
+        name: type
+        required: true
+        content:
+          text/plain:
+            example: "type"
+      responses:
+        200:
+          description: "ok"
+    get:
+      tags: 
+      - User
+      summary: get uploaded picture
+      parameters:
+      - in: path
+        name: id
+        required: true
+        content:
+          text/plain:
+            example: "id"
+      - in: path
+        name: type
+        required: true
+        content:
+          text/plain:
+            example: "type"
+      responses:
+        200:
+          description: "ok"
+          
+          
+  # '/users/{username}': # path parameter in curly braces
+      
+  #   # parameters list that are used with each operation for this path
+  #   parameters:
+  #     - name: pretty_print
+  #       in: query
+  #       description: Pretty print response
+  #       schema:
+  #         type: boolean
+  #   get: # documentation for GET operation for this path
+  #     tags:
+  #       - User
+       
+  #     # summary is up to 120 symbold but we recommend to be shortest as possible
+  #     # summary: Get user by user name
+         
+  #     # you can use GFM in operation description too: https://guides.github.com/features/mastering-markdown
+  #     description: |
+  #       Some description of the operation. 
+  #       You can use `markdown` here.
+      
+  #     # operationId should be unique across the whole specification
+  #     operationId: getUserByName
+      
+  #     # list of parameters for the operation
+  #     parameters:
+  #       - name: username
+  #         in: path
+  #         description: The name that needs to be fetched
+  #         required: true
+  #         schema:
+  #           type: string
+  #       - name: with_email
+  #         in: query
+  #         description: Filter users without email
+  #         schema:
+  #           type: boolean
+      
+  #     # security schemas applied to this operation
+  #     security:
+  #       - main_auth:
+  #           - 'read:users' # for auth2 provide list of scopes here
+  #       - api_key: []
+  #     responses: # list of responses
+  #       '200':
+  #         description: Success
+  #         content:
+  #           application/json: # operation response mime type
+  #             schema: # response schema can be specified for each response
+  #               $ref: '#/components/schemas/User'
+  #             example: # response example
+  #               username: user1
+  #               email: user@example.com
+  #       '403':
+  #         description: Forbidden
+  #       '404':
+  #         description: User not found
+  #   # documentation for PUT operation for this path
+  #   put:
+  #     tags:
+  #       - User
+  #     summary: Updated user
+  #     description: This can only be done by the logged in user.
+  #     operationId: updateUser
+  #     parameters:
+  #       - name: username
+  #         in: path
+  #         description: The name that needs to be updated
+  #         required: true
+  #         schema:
+  #           type: string
+  #     security:
+  #       - main_auth:
+  #           - 'write:users'
+  #     responses:
+  #       '200':
+  #         description: OK
+  #       '400':
+  #         description: Invalid user supplied
+  #       '404':
+  #         description: User not found
+  #     # request body documentation
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/User'
+  #         application/xml:
+  #           schema:
+  #             $ref: '#/components/schemas/User'
+  #       description: Updated user object
+  #       required: true
+
+  
   /echo: # path parameter in curly braces
     post: # documentation for POST operation for this path
       tags:
@@ -192,8 +1272,7 @@ paths:
               type: string
               example: Hello world!
         description: Echo payload
-        required: true
-        
+        required: true            
 # An object to hold reusable parts that can be used across the spec
 components:
   schemas:
@@ -222,6 +1301,267 @@ components:
           example: Smith
         email:
           $ref: '#/components/schemas/Email'
+    Keychange:
+      type: object
+      properties:
+        keyparams:
+          type: string
+          example: "{}"  
+    SystemErrorName:
+      type: string
+      enum:
+        - Array
+    SystemError:
+      properties:
+        name:
+          type: string
+          $ref: '#/components/schemas/SystemErrorName'
+        message:
+          type: string
+    AuthError:
+      properties:
+        name:
+          type: string
+          enum: [AuthError, TokenNotFound, InvalidToken, InvalidRefreshToken, InvalidUserName, InvalidPassword, Require2FA, Invalid2FA, RequireCaptcha, InvalidCaptcha, InvalidClientKey, RepeatSequence]
+        message:
+          type: string
+    GetSalt:
+      properties:
+        name:
+          type: string
+    KeychangeRequest:
+      properties:
+        name:
+          type: string
+    InvalidRequestErrorName:
+      properties:
+        name:
+          type: string
+    InvalidRequestError:
+      properties:
+        name:
+          type: string
+    ForbidenErrorValue:
+      properties:
+        name:
+          type: string
+    ForbidenError:
+      properties:
+        name:
+          type: string
+    UserBlockErrorName:
+      properties:
+        name:
+          type: string
+    UserBlockErrorValue:
+      properties:
+        name:
+          type: string
+    UserBlockError:
+      properties:
+        name:
+          type: string      
+    GetSaltRequest:
+      properties:
+        name:
+          type: string     
+    TokenResponse:
+      properties:
+        name:
+          type: string
+    LoginRequest:
+      properties:
+        name:
+          type: string
+    RefreshRequest:
+      properties:
+        name:
+          type: string  
+    Validate2FARequest:
+      properties:
+        name:
+          type: string
+    UserRef:
+      properties:
+        name:
+          type: string
+    Message:
+      properties:
+        name:
+          type: string
+    UpdateResponse:
+      properties:
+        name:
+          type: string
+    QueryOptions:
+      properties:
+        name:
+          type: string
+    ModelQuery:
+      properties:
+        name:
+          type: string
+    PartialListMessage:
+      properties:
+        name:
+          type: string
+    DeleteResponse:
+      properties:
+        name:
+          type: string
+    PrivilegeSchema:
+      properties:
+        name:
+          type: string
+    ResourcePrivilege:
+      properties:
+        name:
+          type: string
+    AccessPrivilege:
+      properties:
+        name:
+          type: string
+    Privileges:
+      properties:
+        name:
+          type: string
+    Role:
+      properties:
+        name:
+          type: string
+    RoleCreate:
+      properties:
+        name:
+          type: string
+    UpdateRequest:
+      properties:
+        name:
+          type: string
+    PartialListRole:
+      properties:
+        name:
+          type: string
+    Todo:
+      properties:
+        name:
+          type: string
+    TodoCreate:
+      properties:
+        name:
+          type: string
+    CleanRequest:
+      properties:
+        name:
+          type: string
+    DeleteRequest:
+      properties:
+        name:
+          type: string
+    Assign:
+      properties:
+        name:
+          type: string
+    PartialListTodo:
+      properties:
+        name:
+          type: string
+    UserKeychange:
+      properties:
+        name:
+          type: string
+    InsertResponse:
+      properties:
+        name:
+          type: string
+    ValidationErrorValue:
+      properties:
+        name:
+          type: string
+    ValidationError:
+      properties:
+        name:
+          type: string
+    ValidationFieldErrorValue:
+      properties:
+        name:
+          type: string
+    ValidationFieldError:
+      properties:
+        name:
+          type: string
+    DuplicateDataErrorName:
+      properties:
+        name:
+          type: string
+    DuplicateDataErrorValue:
+      properties:
+        name:
+          type: string
+    DuplicateDataError:
+      properties:
+        name:
+          type: string
+    DuplicateFieldErrorName:
+      properties:
+        name:
+          type: string
+    DuplicateFieldErrorValue:
+      properties:
+        name:
+          type: string
+    DuplicateFieldError:
+      properties:
+        name:
+          type: string
+    CreateAgent:
+      properties:
+        name:
+          type: string      
+    CreateExternalAdmin:
+      properties:
+        name:
+          type: string
+    UserActivation:
+      properties:
+        name:
+          type: string
+    UserActivateConfirmation:
+      properties:
+        name:
+          type: string
+    SimpleResponse:
+      properties:
+        name:
+          type: string
+    ChangePassword:
+      properties:
+        name:
+          type: string
+    ResetPassword:
+      properties:
+        name:
+          type: string
+    # User:
+    #   properties:
+    #     name:
+    #       type: string
+    OneSignalID:
+      properties:
+        name:
+          type: string
+    PartialListUser:
+      properties:
+        name:
+          type: string
+    SendMail:
+      properties:
+        name:
+          type: string
+    UploadPicResponse:
+      properties:
+        name:
+          type: string      
+          
   headers:
     ExpiresAfter:
       description: date in UTC when token expires
