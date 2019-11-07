@@ -304,7 +304,7 @@ paths:
       - "Auth"
       summary: "request2FA"
       description: ""
-      operationId: ""
+      # operationId: ""
       parameters: 
         - in: header
           name: "req"
@@ -329,7 +329,7 @@ paths:
       - "Auth"
       summary: "request2FA"
       description: ""
-      operationId: ""
+      # operationId: ""
       parameters:
         - in: header
           name: "req"
@@ -362,7 +362,7 @@ paths:
       - "Auth"
       summary: "validateToken2FA"
       description: ""
-      operationId: ""
+      # operationId: ""
       parameters: 
         - in: header
           name: "req"
