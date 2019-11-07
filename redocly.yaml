@@ -1,0 +1,8 @@
+
+apiTitle: accountModule
+splitSpec: false
+codeSamples: true
+swaggerUI: true
+travis: true
+repo: doc/repo
+oasVersion: 3.0.0
