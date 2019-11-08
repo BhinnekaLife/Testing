@@ -951,11 +951,11 @@ paths:
       summary: Get User By ID
       parameters: 
       - in: path
-        name: id
+        name: oneSignal
         required: true
         content:
           text/plain:
-            example: 'id'
+            example: 'oneSignal'
       responses:
         200:
           description: 'ok'
