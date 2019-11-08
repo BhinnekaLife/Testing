@@ -253,7 +253,7 @@ paths:
         - Auth
       summary: get current user
       description: ''
-      operationId: ''
+      operationId: AuthUser
       parameters:
         - in: header
           name: req
@@ -278,7 +278,6 @@ paths:
         - Auth
       summary: request2FA
       description: ''
-      operationId: ''
       parameters:
         - in: header
           name: req
@@ -303,7 +302,6 @@ paths:
         - Auth
       summary: request2FA
       description: ''
-      operationId: ''
       parameters:
         - in: header
           name: req
@@ -334,7 +332,6 @@ paths:
         - Auth
       summary: validateToken2FA
       description: ''
-      operationId: ''
       parameters:
         - in: header
           name: req
@@ -912,18 +909,18 @@ paths:
       responses:
         '200':
           description: ok
-  /user/oneSignal:
+  '/user/{oneSignal}':
     post:
       tags:
         - User
-      summary: Get User By ID
+      summary: Get User By Signal
       parameters:
         - in: path
-          name: id
+          name: oneSignal
           required: true
           content:
             text/plain:
-              example: id
+              example: oneSignal
       responses:
         '200':
           description: ok
@@ -931,14 +928,13 @@ paths:
     post:
       tags:
         - User
-      summary: Get User By ID
+      summary: get User By Signal
       parameters:
-        - in: path
-          name: id
+        - in: query
+          name: findOne
           required: true
-          content:
-            text/plain:
-              example: id
+          schema:
+            $ref: '#/components/schemas/User'
       responses:
         '200':
           description: ok
@@ -948,12 +944,12 @@ paths:
         - User
       summary: Get User By ID
       parameters:
-        - in: path
-          name: id
+        - in: query
+          name: find
           required: true
           content:
             text/plain:
-              example: id
+              example: request body
       responses:
         '200':
           description: ok
@@ -963,12 +959,12 @@ paths:
         - User
       summary: Get User By ID
       parameters:
-        - in: path
-          name: id
+        - in: query
+          name: sign
           required: true
           content:
             text/plain:
-              example: id
+              example: sign
       responses:
         '200':
           description: ok
@@ -983,7 +979,7 @@ paths:
           required: true
           content:
             text/plain:
-              example: id
+              example: signature
       responses:
         '200':
           description: ok
@@ -997,7 +993,7 @@ paths:
           required: true
           content:
             text/plain:
-              example: id
+              example: signature
       responses:
         '200':
           description: ok
@@ -1007,8 +1003,8 @@ paths:
         - User
       summary: User sendmail
       parameters:
-        - in: path
-          name: id
+        - in: query
+          name: sendMail
           required: true
           content:
             text/plain:
