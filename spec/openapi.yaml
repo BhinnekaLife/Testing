@@ -1038,7 +1038,7 @@ paths:
       - User
       summary: User sendmail
       parameters: 
-      - in: path
+      - in: query
         name: sendMail
         required: true
         content:
