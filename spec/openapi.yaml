@@ -994,7 +994,7 @@ paths:
       - User
       summary: Get User By ID
       parameters: 
-      - in: path
+      - in: query
         name: sign
         required: true
         content:
