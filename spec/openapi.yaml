@@ -944,11 +944,11 @@ paths:
       responses:
         200:
           description: "ok"
-  /user/oneSignal:
+  /user/{oneSignal}:
     post:
       tags: 
       - User
-      summary: Get User By ID
+      summary: Get User By Signal
       parameters: 
       - in: path
         name: oneSignal
