@@ -959,14 +959,14 @@ paths:
       responses:
         200:
           description: 'ok'
-  /user/findOne:
+  /user/{findOne}:
     post:
       tags: 
       - User
       summary: Get User By ID
       parameters: 
       - in: path
-        name: id
+        name: findOne
         required: true
         content:
           text/plain:
