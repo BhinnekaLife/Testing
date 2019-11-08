@@ -959,33 +959,32 @@ paths:
       responses:
         200:
           description: 'ok'
-  /user/{findOne}:
+  /user/findOne:
     post:
-      tags: 
-      - User
-      summary: Get User By ID
-      parameters: 
-      - in: path
+      tags:
+        - User
+      summary: get User By Signal
+      parameters:
+      - in: query
         name: findOne
         required: true
-        content:
-          text/plain:
-            example: 'id'
+        schema:
+          $ref: '#/components/schemas/User'
       responses:
         200:
-          description: 'ok'
+          description: "ok"
   /user/find:
     post:
       tags: 
       - User
       summary: Get User By ID
       parameters: 
-      - in: path
-        name: id
+      - in: query
+        name: find
         required: true
         content:
           text/plain:
-            example: 'id'
+            example: 'request body'
       responses:
         200:
           description: 'ok'
@@ -996,11 +995,11 @@ paths:
       summary: Get User By ID
       parameters: 
       - in: path
-        name: id
+        name: sign
         required: true
         content:
           text/plain:
-            example: 'id'
+            example: 'sign'
       responses:
         200:
           description: 'ok'      
@@ -1015,7 +1014,7 @@ paths:
         required: true
         content:
           text/plain:
-            example: 'id'
+            example: 'signature'
       responses:
         200:
           description: 'ok'     
@@ -1029,7 +1028,7 @@ paths:
         required: true
         content:
           text/plain:
-            example: 'id'
+            example: 'signature'
       responses:
         200:
           description: 'ok'
@@ -1040,7 +1039,7 @@ paths:
       summary: User sendmail
       parameters: 
       - in: path
-        name: id
+        name: sendMail
         required: true
         content:
           text/plain:
